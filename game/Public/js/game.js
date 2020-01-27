@@ -141,7 +141,7 @@ function create() {
 
   let startString = "Touch screen to start";
   startMessage = self.add.text(400, 300, startString, {
-    font: "28px",
+    font: "27px",
     fill: "#FFF",
   });
   startMessage.setOrigin(0.5);
