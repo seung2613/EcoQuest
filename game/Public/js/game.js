@@ -102,8 +102,8 @@ function preload() {
     "questionBackground",
     "../assets/backgrounds/uglyQuestionBackground.png"
   );
-  this.load.webfont("ponderosa", "../fonts/ponderosa.ttf");
-  this.load.webfont("Ubuntu-Regular", "../fonts/Ubuntu-Regular.ttf");
+  // this.load.webfont("ponderosa", "../fonts/ponderosa.ttf");
+  // this.load.webfont("Ubuntu-Regular", "../fonts/Ubuntu-Regular.ttf");
 }
 
 function create() {
@@ -141,8 +141,8 @@ function create() {
 
   let startString = "Touch screen to start";
   startMessage = self.add.text(400, 300, startString, {
-    font: "28px ponderosa",
-    fill: "#FFF"
+    font: "28px",
+    fill: "#FFF",
   });
   startMessage.setOrigin(0.5);
   startMessage.y += -150;
@@ -609,7 +609,7 @@ function displayQuestion(questionInfo) {
 
   // Set the question text
   question.text = self.add.text(0, 0, questionInfo, {
-    font: "20px Ubuntu-Regular",
+    font: "20px",
     color: "#000000",
     align: "center",
     wordWrap: {
@@ -645,7 +645,7 @@ function displayAnswers(answers) {
     card.alpha = 0.9;
     // Creation of text and adding to group
     card.text = self.add.text(0, 0, answer, {
-      font: "17px Ubuntu-Regular",
+      font: "17px",
       // fontSize: 17,
       color: "#000000",
       align: "center",
@@ -728,7 +728,7 @@ function scoreAndPlayer() {
 
   scoreText = self.add.text(16, 16, scoreBoard, {
     // fontFamily: "Macondo Swash Caps",
-    font: "30px ponderosa",
+    font: "30px",
     // fontSize: "40px",
     fill: "#FFF"
   });

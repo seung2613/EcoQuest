@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node --experimental-worker ./bin/server.js",
-    "devstart": "set DEBUG=comp2930-team2:server && nodemon --experimental-worker --no-deprecation ./bin/server.js",
-    "heroku-postbuild": "cd client && npm install && npm run build"
+    "devstart": "set DEBUG=comp2930-team2:server && nodemon --experimental-worker --no-deprecation ./bin/server.js"
   },
   "engines": {
     "node": "10.15.3"
