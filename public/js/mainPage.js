@@ -69,9 +69,11 @@ $(document).ready(() => {
   });
 
   /** Takes user to join room page */
-  $("#join").click(() => {
-    window.location.href = "game";
-  });
+  // $("#join").click(() => {
+  //   window.location.href = "game";
+  // });
+  $('#join').prop('disabled', true);
+
 
   /** Takes user to join room page */
   $("#cards").click(() => {

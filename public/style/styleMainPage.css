@@ -36,6 +36,7 @@
 }
 
 
+
 /*label for main page con*/
 
 #mainpagecon label {
@@ -51,6 +52,11 @@
 	flex-wrap: wrap;
 	justify-content: space-around;
 	margin: 0 auto;
+}
+#join {
+
+	background-color: grey;
+	cursor: not-allowed;
 }
 
 
@@ -80,7 +86,7 @@
 	}
 }
 
-//*media query for tablets*/
+/*media query for tablets*/
 @media only screen and (max-width:900px) and (min-width: 600px) {
 	#buttons {
 		flex-direction: row;

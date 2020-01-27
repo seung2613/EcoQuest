@@ -17,22 +17,24 @@ const config = {
       // debug: "true"
     }
   },
+  scene: {
+    preload: preload,
+    create: create,
+    update: update
+  },
   plugins: {
     global: [{
       key: "WebFontLoader",
       plugin: WebFontLoaderPlugin,
       start: true
     }]
-  },
-  scene: {
-    preload: preload,
-    create: create,
-    update: update
   }
 };
 
 // Main game object
+var assetsloaded = false;
 const game = new Phaser.Game(config);
+
 const playerAnswers = new Map();
 
 let self;
@@ -66,52 +68,35 @@ const spawnPoints = [
 if (window.innerHeight > window.innerWidth) {
   alert("Please use Landscape!");
 }
-// if (screen.lockOrientationUniversal("landscape-primary")) {
-// if (screen.lockOrientation('landscape')) {
-//   // Orientation was locked
-// } else {
-//   // Orientation lock failed
-//   console.log("failed");
-// }
 
 function preload() {
   this.load.image("sky", "../assets/backgrounds/darkblue.png");
-  // this.load.image("default", "../assets/backgrounds/default.png");
-
   this.load.image("water", "../assets/backgrounds/darkblue-wave.png");
-
   this.load.image("night", "../assets/backgrounds/night.png");
   this.load.image("night-wave", "../assets/backgrounds/night-wave.png");
-
   this.load.image("city", "../assets/backgrounds/city.png");
   this.load.image("city-wave", "../assets/backgrounds/city-wave.png");
-
   this.load.image("darkblue", "../assets/backgrounds/darkblue.png");
   this.load.image("darkblue-wave", "../assets/backgrounds/darkblue-wave.png");
-
-
-
-
   this.load.image("exclamation", "../assets/character/exclamation.png");
-  this.load.image("questionMark", "../assets/character/question.png");
-
+  this.load.image("questionMark", "../assets/character/none.png");
   this.load.image("1st", "../assets/character/1st.png");
   this.load.image("2nd", "../assets/character/2nd.png");
   this.load.image("3rd", "../assets/character/3rd.png");
   this.load.image("ghost", "../assets/character/ghost.png");
   this.load.image("ready", "../assets/character/star.png");
   this.load.image("none", "../assets/character/none.png");
-
   this.load.image("yellowChar", "../assets/character/yellowChar.png");
   this.load.image("blueChar", "../assets/character/blueChar.png");
   this.load.image("greenChar", "../assets/character/greenChar.png");
   this.load.image("redChar", "../assets/character/redChar.png");
-
+  this.load.image("sesame", "../assets/character/sesame.png");
+  this.load.image("grass", "../assets/character/grass.png");
+  this.load.image("rabbitpet", "../assets/backgrounds/rabbitpet.png");
   this.load.image("platform1", "../assets/backgrounds/platform3.png");
   this.load.image("duckpet", "../assets/backgrounds/duckpet.png");
   this.load.image("pinkplatform", "../assets/character/pinkplatform.png");
   this.load.image("purpleplatform", "../assets/character/purpleplatform.png");
-
   this.load.image("cardFront", "../assets/backgrounds/cardFront.png");
   this.load.image(
     "questionBackground",
@@ -142,17 +127,18 @@ function create() {
     targets: water.body.velocity,
     loop: -1,
     tweens: [{
-        y: -30,
-        duration: 700,
-        ease: "Stepped"
-      },
-      {
-        y: 30,
-        duration: 700,
-        ease: "Stepped"
-      }
+      y: -30,
+      duration: 700,
+      ease: "Stepped"
+    },
+    {
+      y: 30,
+      duration: 700,
+      ease: "Stepped"
+    }
     ]
   });
+
   let startString = "Touch screen to start";
   startMessage = self.add.text(400, 300, startString, {
     font: "28px ponderosa",
@@ -161,25 +147,7 @@ function create() {
   startMessage.setOrigin(0.5);
   startMessage.y += -150;
 
-  // this.tweens.timeline({
-  //   targets: startMessage,
-  //   loop: -1,
-  //   tweens: [{
-  //       y: -30,
-  //       duration: 700,
-  //       ease: 'Stepped'
-  //     },
-  //     {
-  //       y: 30,
-  //       duration: 700,
-  //       ease: 'Stepped'
-  //     },
-  //
-  //
-  //   ]
-  // });
 
-  // ----------------------------------------Server Connection----------------------------------------------
   // ----------Incoming Information----------
   if (!gameStarted) {
     this.socket.on("newPlayer", createPlayer);
@@ -201,7 +169,7 @@ function create() {
   this.socket.emit("currentPlayers");
   this.socket.emit("getCosmetics");
   this.socket.emit("me");
-  // ------------------------------------------------------------------------------------------------------
+  // -----------------------------------------------
   //Detects touch on mobile devices
   this.input.on("pointerup", pointer => {
     if (mainPlayer.body.touching.down && gameStarted) {
@@ -234,6 +202,8 @@ function update() {
     updateStatePosition(player);
   }
 }
+
+
 // pin state image above character's head
 function updateStatePosition(player) {
   let playerState = player.supportingState;
@@ -246,11 +216,9 @@ function setCosmetics(cosmeticsInfo) {
     holder => cosmeticsInfo.playerId === holder.playerId
   );
 
-  let cosAvatar = cosmeticsInfo.cosmetics.activeAvatar.imageLink;
-  let cosPlatform = cosmeticsInfo.cosmetics.activePlatform.imageLink;
+  let cosAvatar = cosmeticsInfo.cosmetics.activeAvatar.imageLink ? cosmeticsInfo.cosmetics.activeAvatar.imageLink : "../assets/character/default.png";
+  let cosPlatform = cosmeticsInfo.cosmetics.activePlatform.imageLink ? cosmeticsInfo.cosmetics.activePlatform.imageLink : "../assets/character/platform3.png";
   let cosBackground = cosmeticsInfo.cosmetics.activeBackground.imageLink;
-  console.log("cosBackground ", cosAvatar);
-
 
   // player.setTexture(cosmeticsInfo.cosmetics.activeAvatar.subString())
   player.setTexture(
@@ -283,10 +251,8 @@ function startRound(roundInfo) {
   gameStarted = true;
   scoreAndPlayer();
   // Other round start stuff, reset game objects
-  console.log("startRound() in game.js");
-  if (!mainPlayer.gameOver) {
-    // setTimeout(() => mainPlayer.supportingState.setTexture("questionMark"), 1500);
-    console.log("mainPlayer.playerId ", mainPlayer.playerId);
+
+  if (!mainPlayer.gameOver && !players.length == 1) {
     self.socket.emit("playerStateChange", {
       playerId: mainPlayer.playerId,
       state: "questionMark"
@@ -304,21 +270,17 @@ function playerJump(playerId) {
 }
 //Change the state icon according to the incoming state information
 function playerStateChange(stateInfo) {
-  let player = players.find(holder => stateInfo.playerId === holder.playerId);
-  console.log("player ", player);
+  let player = mainPlayer;
   switch (stateInfo.state) {
     case "ready":
-      console.log(stateInfo.playerId, " in case: ready, stateinfo.playerId");
-      player.supportingState.setTexture("ready");
+      // player.supportingState.setTexture("ready");
       break;
     case "questionMark":
-      console.log("players: ", players);
-      console.log("stateinfo: ", stateInfo);
-      console.log(stateInfo.playerId, " stateinfo.playerId");
+
       player.answered = false;
       if (!isLoser(stateInfo.playerId)) {
         for (let player of players) {
-          player.supportingState.setTexture("questionMark");
+          player.supportingState.setTexture("none");
         }
       }
       break;
@@ -334,24 +296,27 @@ function playerStateChange(stateInfo) {
       player.body.allowGravity = false;
       player.alpha = 0.5;
       setTimeout(() => player.setTexture("ghost"), 800);
+
+      question.destroy();
+
       player.supportingState.destroy();
       player.setImmovable(true);
       player.supportingPlatform.destroy();
       losers = stateInfo.losers;
-      console.log("Update losers list: ", losers);
+
       self.tweens.timeline({
         targets: player.body.velocity,
         loop: -1,
         tweens: [{
-            y: -30,
-            duration: 700,
-            ease: "Stepped"
-          },
-          {
-            y: 30,
-            duration: 700,
-            ease: "Stepped"
-          }
+          y: -30,
+          duration: 700,
+          ease: "Stepped"
+        },
+        {
+          y: 30,
+          duration: 700,
+          ease: "Stepped"
+        }
         ]
       });
 
@@ -365,7 +330,6 @@ function playerStateChange(stateInfo) {
       gameEnd();
       break;
     default:
-      console.log("state undefined!!!");
       break;
   }
 }
@@ -388,13 +352,12 @@ function gameEnd() {
   question.text.destroy();
   let minusGhosts = players.filter(elem => elem.gameOver !== true);
   let sortedCorrectAnswersDesc = [];
-  minusGhosts.forEach(function(element) {
+  minusGhosts.forEach(function (element) {
     sortedCorrectAnswersDesc.push(element.correctAnswers);
-    sortedCorrectAnswersDesc.sort(function(p, q) {
+    sortedCorrectAnswersDesc.sort(function (p, q) {
       return q - p;
     });
   });
-  console.log("sortedCorrectAnswersDesc: ", sortedCorrectAnswersDesc);
   if (minusGhosts.length <= 3) {
     for (let i = 0; i < minusGhosts.length; i++) {
       minusGhosts[i].y = 0;
@@ -425,7 +388,6 @@ function gameEnd() {
     }
   }
   let uniq = [...new Set(sortedCorrectAnswersDesc)];
-  console.log("uniq:", uniq);
   for (let i = 0; i < minusGhosts.length; i++) {
     if (minusGhosts[i].correctAnswers === uniq[0]) {
       minusGhosts[i].supportingState.setTexture("1st");
@@ -440,7 +402,8 @@ function gameEnd() {
 }
 // End the round and update players accordingly
 function endRound(roundInfo) {
-  console.log("Round ending");
+  let player = mainPlayer;
+  player.supportingState.setTexture("none");
   for (let card of answerCards) {
     if (roundInfo.answer === card.text.text) {
       self.tweens.add({
@@ -512,6 +475,7 @@ function createPlayer(playerInfo) {
     case 3:
       newPlayer = self.physics.add.sprite(startingX, startingY, "redChar");
       break;
+    default:
   }
 
   // Mage players bounce and have the player sit infront of the platforms
@@ -545,6 +509,7 @@ function createPlayer(playerInfo) {
 
   // Update other players positions, (i.e slide them over for the new player)
   updatePlayerPosition();
+  assetsloaded = true;
 }
 
 function createState(stateInfo) {
@@ -592,7 +557,6 @@ function removePlayer(playerInfo) {
   for (let i = 0; i < players.length; i++) {
     if (playerInfo.playerId === players[i].playerId) {
       let removing = players.splice(i, 1)[0];
-      console.log("removed: " + JSON.stringify(removing));
       removing.supportingPlatform.destroy();
       removing.supportingState.destroy();
       removing.destroy();
@@ -656,9 +620,9 @@ function displayQuestion(questionInfo) {
   question.text.setDepth(2);
   question.text.setPosition(
     question.x - question.text.getBounds()
-    .width / 2,
+      .width / 2,
     question.y - question.text.getBounds()
-    .height / 2
+      .height / 2
   );
 }
 
@@ -675,7 +639,7 @@ function displayAnswers(answers) {
 
   // Start off screen
   for (let answer of answers) {
-    console.log("answers.length, ", answers.length);
+
     let card = self.add.image(-100, 550, "cardFront");
     card.setDepth(9);
     card.alpha = 0.9;
@@ -690,7 +654,7 @@ function displayAnswers(answers) {
       }
     });
 
-    console.log(card.width);
+
 
     card.text.setDepth(10);
     card.text.setOrigin(0.5);
@@ -698,7 +662,7 @@ function displayAnswers(answers) {
     // Set card to be interactive and fire answer on click
     card.setInteractive()
       .on("pointerdown", () => {
-        if (!mainPlayer.gameOver && !mainPlayer.answered) {
+        if (!mainPlayer.gameOver) {
           self.socket.emit("playerAnswered", {
             answer: card.text.text,
             playerId: mainPlayer.playerId
@@ -745,7 +709,6 @@ function displayAnswers(answers) {
 
 // Add text to the screen for player score
 function scoreAndPlayer() {
-  console.log("array:", players);
 
   if (scoreText) {
     scoreText.destroy();
@@ -779,3 +742,4 @@ function isLoser(id) {
   }
   return false;
 }
+

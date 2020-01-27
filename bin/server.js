@@ -20,7 +20,7 @@ var io = require("socket.io")
 
 // Listen on provided port, on all network interfaces.
 var port = normalizePort(process.env.PORT || "3000");
-server.listen(port, "0.0.0.0", function() {
+server.listen(port, "0.0.0.0", function () {
   console.log("Listening to port:  " + 3000);
 });
 
@@ -75,7 +75,7 @@ function onListening() {
 }
 
 let idHolder;
-io.use(function(socket, next) {
+io.use(function (socket, next) {
   var handshakeData = socket.request;
   console.log("Player connected to game:", handshakeData._query["token"]);
   idHolder = handshakeData._query["token"];
@@ -95,7 +95,7 @@ var gameStarted = false;
 const losers = [];
 
 // incomming information. The connection is made
-io.on("connection", function(socket) {
+io.on("connection", function (socket) {
   self.id = socket.id;
   if (players.length >= maxPlayers) {
     return socket.disconnect();
@@ -117,7 +117,7 @@ io.on("connection", function(socket) {
   socket.on("getCosmetics", async () => {
     let user = await User.findById(players.get(socket.id)
       .userId);
-    console.log("cosmeticss ", user);
+
     io.emit("setCosmetics", {
       playerId: socket.id,
       cosmetics: user.cosmetics
@@ -165,7 +165,6 @@ function onDisconnect(socket) {
   } else {
     return;
   }
-  console.log("removed player: " + JSON.stringify(removePlayer));
   socket.disconnect();
 }
 //On player click on the answer
@@ -213,8 +212,7 @@ function endRound() {
     if (round < glob.cards.length && !roundStarted) {
       roundStart(round);
     } else {
-      console.log("The end----------------------------");
-      console.log("self.id ", self.id);
+
       io.emit("gameEnd", {
         playerId: self.id,
         state: "gameEnd"
@@ -231,7 +229,6 @@ function endRound() {
 }
 //Sends game over massege to clients
 function gameOver(id) {
-  console.log(id, " Game Over");
 
   //check duplicates before adding
   if (id !== losers.find(element => element === id)) {
@@ -264,10 +261,11 @@ function onPlayerStateChange(socket, data) {
         playerId: socket.id,
         state: "ready"
       });
+
+
       // Start round if all players are ready
       if (allPlayerReady()) {
-        if (!roundStarted) {
-          console.log("round has not started yet");
+        if (!roundStarted || players.size == 1) {
           roundStart(round);
         }
         //need to pass in socket, otherwise player will be null in the clients
@@ -278,8 +276,6 @@ function onPlayerStateChange(socket, data) {
       break;
 
     case "questionMark":
-      // console.log("socket, ", socket);
-      console.log("socket.ids ", socket.id);
       io.emit("playerStateChange", {
         playerId: socket.id,
         state: "questionMark"
@@ -301,8 +297,6 @@ function onPlayerStateChange(socket, data) {
 // Shuffling the answers and make them into a set of 4 multiple choices.
 // If the number of question is less than 4, add in dummy choices.
 async function roundStart(s) {
-  console.log("starting round: " + JSON.stringify(s));
-
   for (let o of players.values()) {
     o.answeredRound = false;
   }
@@ -312,7 +306,6 @@ async function roundStart(s) {
     // deck: "test"
   });
 
-  console.log("card length: ", glob.cards.length);
 
   let question;
   let answers = [];
@@ -332,7 +325,6 @@ async function roundStart(s) {
         }
       }
     } else {
-      console.log("inside roundStart");
       for (let i = 0; i < glob.cards.length; i++) {
         if (glob.cards[i].answer != glob.cards[s].answer) {
           answers.push(glob.cards[i].answer);
@@ -383,10 +375,8 @@ function allPlayerAnswered() {
 function allPlayerReady() {
   for (let player of players.values()) {
     if (player.ready != true) {
-      console.log("y'all ready: false");
       return false;
     }
   }
-  console.log("y'all ready: true");
   return true;
 }
