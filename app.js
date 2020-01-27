@@ -22,6 +22,11 @@ var app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// app.use(function(req, res, next) {
+//   res.setHeader("Content-Security-Policy", "default-src 'self'; font-src 'self' data:;");
+//   next();
+// });
+
 // Set the rendering engine to mustache
 app.engine("html", consolidate.mustache);
 app.set("view engine", "html");
@@ -58,9 +63,6 @@ app.use("/cards", auth, cardRouter);
 app.use("/decks", auth, deckRouter);
 app.use("/items", auth, itemRouter);
 
-// app.get('/mainPage', function(req, res) {
-//   res.render('public/views/mainPage.html');
-// });
 
 // public will hold static basic files
 // game/public will hold static files for games
